@@ -12,7 +12,7 @@ const env = {
   id: 'hotel-booking-local-env',
   name: 'Hotel Booking - Local',
   values: [
-    { key: 'baseUrl',   value: 'http://localhost:9999', type: 'default', enabled: true },
+    { key: 'baseUrl',   value: 'http://localhost:3001', type: 'default', enabled: true },
     { key: 'token',     value: '',                      type: 'default', enabled: true },
     { key: 'bookingId', value: '',                      type: 'default', enabled: true }
   ],
@@ -45,6 +45,11 @@ const collection = {
         '  pm.expect(d.user).to.have.property("role", "admin");',
         '  pm.expect(d.user).to.not.have.property("password");',
         '  pm.environment.set("token", d.token);',    // บันทึก token → ใช้ใน Request 3–7
+        '});',
+        '',
+        'pm.test("user.id is a positive number", function() {',
+        '  const d = pm.response.json();',
+        '  pm.expect(d.user.id).to.be.a("number").and.above(0);',
         '});',
 
         'pm.test("Response time is less than 2000ms", function() {',
@@ -81,7 +86,7 @@ const collection = {
         body: {
           mode: 'raw',
           raw: JSON.stringify({
-            fullname: 'Surachai', email: 'Surachai@test.com',
+            fullname: 'wasuratsomdet9009', email: 'wasuratsomdet@test.com',
             phone: '0812345678', checkin: '2026-12-01', checkout: '2026-12-03',
             roomtype: 'standard', guests: 2
           })
@@ -154,6 +159,7 @@ const collection = {
         '  const d = pm.response.json();',
         '  pm.expect(d.id).to.equal(parseInt(pm.environment.get("bookingId")));',
         '  pm.expect(d.email).to.be.a("string").and.not.empty;',
+        '  pm.expect(d.fullname).to.be.a("string").and.not.empty;',
         '});'
       ]}}],
       request: {
@@ -179,6 +185,7 @@ const collection = {
         '  pm.expect(d.comment).to.equal("Updated by Newman test");',
         '  pm.expect(d.roomtype).to.equal("deluxe");',
         '  pm.expect(d).to.have.property("id");',
+        '  pm.expect(d.guests).to.equal(3);',
         '});'
       ]}}],
       request: {
@@ -224,6 +231,102 @@ const collection = {
           raw: '{{baseUrl}}/api/bookings/{{bookingId}}',
           host: ['{{baseUrl}}'], path: ['api', 'bookings', '{{bookingId}}']
         }
+      }
+    },
+
+    // ── Request 8: POST /api/login — Wrong Password ──────────
+    {
+      name: '8. POST /api/login — Wrong Password',
+      event: [{ listen: 'test', script: { type: 'text/javascript', exec: [
+        'pm.test("Returns 401 Unauthorized", function() {',
+        '  pm.response.to.have.status(401);',
+        '});',
+        'pm.test("Has error message", function() {',
+        '  const d = pm.response.json();',
+        '  pm.expect(d).to.have.property("error");',
+        '  pm.expect(d.error).to.include("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง");',
+        '});'
+      ]}}],
+      request: {
+        method: 'POST',
+        header: [{ key: 'Content-Type', value: 'application/json' }],
+        body: { mode: 'raw', raw: JSON.stringify({ username: 'admin', password: 'wrongpassword' }) },
+        url: { raw: '{{baseUrl}}/api/login', host: ['{{baseUrl}}'], path: ['api', 'login'] }
+      }
+    },
+
+    // ── Request 9: POST /api/checkin ──────────
+    {
+      name: '9. POST /api/checkin',
+      event: [{ listen: 'test', script: { type: 'text/javascript', exec: [
+        'pm.test("Status code is 200", function() {',
+        '  pm.response.to.have.status(200);',
+        '});',
+        'pm.test("CheckIn message is correct", function() {',
+        '  const d = pm.response.json();',
+        '  pm.expect(d).to.have.property("message");',
+        '  pm.expect(d.message).to.equal("Check-in สำเร็จ");',
+        '  pm.expect(d.by).to.equal("wasuratsomdet9009");',
+        '});'
+      ]}}],
+      request: {
+        method: 'POST',
+        header: [
+            { key: 'Authorization', value: 'Bearer {{token}}' },
+            { key: 'Content-Type', value: 'application/json' }
+        ],
+        body: { mode: 'raw', raw: JSON.stringify({ bookingId: 1 }) },
+        url: { raw: '{{baseUrl}}/api/checkin', host: ['{{baseUrl}}'], path: ['api', 'checkin'] }
+      }
+    },
+
+    // ── Request 10: POST /api/checkout ──────────
+    {
+      name: '10. POST /api/checkout',
+      event: [{ listen: 'test', script: { type: 'text/javascript', exec: [
+        'pm.test("Status code is 200", function() {',
+        '  pm.response.to.have.status(200);',
+        '});',
+        'pm.test("CheckOut message is correct", function() {',
+        '  const d = pm.response.json();',
+        '  pm.expect(d).to.have.property("message");',
+        '  pm.expect(d.message).to.equal("Check-out สำเร็จ");',
+        '  pm.expect(d.by).to.equal("wasuratsomdet9009");',
+        '});'
+      ]}}],
+      request: {
+        method: 'POST',
+        header: [
+            { key: 'Authorization', value: 'Bearer {{token}}' },
+            { key: 'Content-Type', value: 'application/json' }
+        ],
+        body: { mode: 'raw', raw: JSON.stringify({ checkInId: 1 }) },
+        url: { raw: '{{baseUrl}}/api/checkout', host: ['{{baseUrl}}'], path: ['api', 'checkout'] }
+      }
+    },
+
+    // ── Request 11: POST /api/confirmcheckout ──────────
+    {
+      name: '11. POST /api/confirmcheckout',
+      event: [{ listen: 'test', script: { type: 'text/javascript', exec: [
+        'pm.test("Status code is 200", function() {',
+        '  pm.response.to.have.status(200);',
+        '});',
+        'pm.test("ConfirmCheckOut message is correct", function() {',
+        '  const d = pm.response.json();',
+        '  pm.expect(d).to.have.property("message");',
+        '  pm.expect(d.message).to.equal("Confirm Check-out สำเร็จ");',
+        '  pm.expect(d.by).to.equal("wasuratsomdet9009");',
+        '});'
+      ]}}],
+      request: {
+        method: 'POST',
+        header: [
+            { key: 'Authorization', value: 'Bearer {{token}}' },
+            { key: 'Content-Type', value: 'application/json' }
+        ],
+        body: { mode: 'raw', raw: JSON.stringify({ checkOutId: 1 }) },
+        url: { raw: '{{baseUrl}}/api/confirmcheckout', host: ['{{baseUrl}}'], path: ['api', 'confirmcheckout'] }
       }
     }
 

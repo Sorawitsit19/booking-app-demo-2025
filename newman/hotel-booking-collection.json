@@ -87,7 +87,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\"fullname\":\"Surachai\",\"email\":\"Surachai@test.com\",\"phone\":\"0812345678\",\"checkin\":\"2026-12-01\",\"checkout\":\"2026-12-03\",\"roomtype\":\"standard\",\"guests\":2}"
+          "raw": "{\"fullname\":\"wasuratsomdet9009\",\"email\":\"wasuratsomdet@test.com\",\"phone\":\"0812345678\",\"checkin\":\"2026-12-01\",\"checkout\":\"2026-12-03\",\"roomtype\":\"standard\",\"guests\":2}"
         },
         "url": {
           "raw": "{{baseUrl}}/api/bookings",
@@ -200,6 +200,7 @@
               "  const d = pm.response.json();",
               "  pm.expect(d.id).to.equal(parseInt(pm.environment.get(\"bookingId\")));",
               "  pm.expect(d.email).to.be.a(\"string\").and.not.empty;",
+              "  pm.expect(d.fullname).to.be.a(\"string\").and.not.empty;",
               "});"
             ]
           }
@@ -242,6 +243,7 @@
               "  pm.expect(d.comment).to.equal(\"Updated by Newman test\");",
               "  pm.expect(d.roomtype).to.equal(\"deluxe\");",
               "  pm.expect(d).to.have.property(\"id\");",
+              "  pm.expect(d.guests).to.equal(3);",
               "});"
             ]
           }

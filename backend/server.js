@@ -56,7 +56,7 @@ const swaggerOptions = {
   properties: {
     token: {
       type: 'string',
-      description: 'แก้ไข Login Response Description โดย Surachai'  // ← แก้ไข description เป็นการระบุว่า แก้ไข Response description โดยใคร
+      description: 'แก้ไข Login Response Description โดย wasuratsomdet9009'  // ← แก้ไข description เป็นการระบุว่า แก้ไข Response description โดยใคร
     },
     user: {
       type: 'object',
@@ -394,4 +394,164 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+/**
+ * @swagger
+ * /api/checkin:
+ *   post:
+ *     summary: เช็คอินเข้าห้องพัก
+ *     description: ระบุ ID ของการจองเพื่อใช้ทำการเช็คอิน (แก้ไขโดย wasuratsomdet9009)
+ *     tags: [Bookings]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [bookingId]
+ *             properties:
+ *               bookingId:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       200:
+ *         description: สร้างการเช็คอินสำเร็จ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message: { type: string, example: Check-in สำเร็จ }
+ *                 bookingId: { type: integer, example: 1 }
+ *                 status: { type: string, example: checked-in }
+ *                 checkInTime: { type: string, example: '2026-04-01T12:00:00.000Z' }
+ *                 by: { type: string, example: wasuratsomdet9009 }
+ *       400:
+ *         description: ข้อมูลไม่ครบ
+ *       401:
+ *         description: ไม่ได้ส่ง Token
+ */
+// เพิ่มเติมส่วน CheckIn โดย wasuratsomdet9009
+app.post('/api/checkin', authenticateToken, (req, res) => {
+  const { bookingId } = req.body;
+  if (!bookingId) {
+    return res.status(400).json({ error: 'กรุณาระบุ bookingId' });
+  }
+  // Mockup response
+  res.json({
+    message: 'Check-in สำเร็จ',
+    bookingId: bookingId,
+    status: 'checked-in',
+    checkInTime: new Date().toISOString(),
+    by: 'wasuratsomdet9009'
+  });
+});
+
+/**
+ * @swagger
+ * /api/checkout:
+ *   post:
+ *     summary: เช็คเอาท์จากห้องพัก
+ *     description: ระบุ ID ของการจองเพื่อใช้ทำการเช็คเอาท์ (แก้ไขโดย wasuratsomdet9009)
+ *     tags: [Bookings]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [checkInId]
+ *             properties:
+ *               checkInId:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       200:
+ *         description: ทำการเช็คเอาท์สำเร็จ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message: { type: string, example: Check-out สำเร็จ }
+ *                 checkInId: { type: integer, example: 1 }
+ *                 amount: { type: number, example: 1500 }
+ *                 status: { type: string, example: checked-out }
+ *                 by: { type: string, example: wasuratsomdet9009 }
+ *       400:
+ *         description: ข้อมูลไม่ครบ
+ *       401:
+ *         description: ไม่ได้ส่ง Token
+ */
+// เพิ่มเติมส่วน CheckOut โดย wasuratsomdet9009
+app.post('/api/checkout', authenticateToken, (req, res) => {
+  const { checkInId } = req.body;
+  if (!checkInId) {
+    return res.status(400).json({ error: 'กรุณาระบุ checkInId' });
+  }
+  // Mockup response
+  res.json({
+    message: 'Check-out สำเร็จ',
+    checkInId: checkInId,
+    amount: 1500,
+    status: 'checked-out',
+    by: 'wasuratsomdet9009'
+  });
+});
+
+/**
+ * @swagger
+ * /api/confirmcheckout:
+ *   post:
+ *     summary: ยืนยันการชำระเงินเช็คเอาท์
+ *     description: ยืนยันการออกและการชำระเงิน (แก้ไขโดย wasuratsomdet9009)
+ *     tags: [Bookings]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [checkOutId]
+ *             properties:
+ *               checkOutId:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       200:
+ *         description: ยืนยันการชำระเงินสำเร็จ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message: { type: string, example: Confirm Check-out สำเร็จ }
+ *                 checkOutId: { type: integer, example: 1 }
+ *                 completed: { type: boolean, example: true }
+ *                 by: { type: string, example: wasuratsomdet9009 }
+ *       400:
+ *         description: ข้อมูลไม่ครบ
+ *       401:
+ *         description: ไม่ได้ส่ง Token
+ */
+// เพิ่มเติมส่วน ConfirmCheckOut โดย wasuratsomdet9009
+app.post('/api/confirmcheckout', authenticateToken, (req, res) => {
+  const { checkOutId } = req.body;
+  if (!checkOutId) {
+    return res.status(400).json({ error: 'กรุณาระบุ checkOutId' });
+  }
+  // Mockup response
+  res.json({
+    message: 'Confirm Check-out สำเร็จ',
+    checkOutId: checkOutId,
+    completed: true,
+    by: 'wasuratsomdet9009'
+  });
+});
+
+app.listen(PORT, () => console.log(`Server running on port \${PORT}`));
