@@ -1,0 +1,61 @@
+# ══════════════════════════════════════════════════════
+#  Compose Specification
+# ══════════════════════════════════════════════════════
+
+services:
+
+  # ─── Backend API + SQLite ─────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: booking-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      BACKEND_PORT: ${BACKEND_PORT}
+      DB_PATH: ${DB_PATH}          # Path ของ SQLite file ใน Container
+    ports:
+      - "${HOST_BACKEND_PORT}:${BACKEND_PORT}"
+    volumes:
+      # Mount Volume เพื่อให้ booking.db อยู่รอดเมื่อ Container ถูก restart
+      - sqlite_data:/app/data
+    networks:
+      - booking-net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:${BACKEND_PORT}/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ─── Frontend Web ─────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: booking-frontend
+    restart: unless-stopped
+    ports:
+      - "${HOST_FRONTEND_PORT}:${FRONTEND_PORT}"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - booking-net
+
+# ══════════════════════════════════════════════════════
+#  Networks
+# ══════════════════════════════════════════════════════
+networks:
+  booking-net:
+    driver: bridge
+    name: booking-network
+
+# ══════════════════════════════════════════════════════
+#  Volumes — เก็บ SQLite .db file ให้อยู่รอดข้าม restart
+# ══════════════════════════════════════════════════════
+volumes:
+  sqlite_data:
+    driver: local
+    name: booking-sqlite-data

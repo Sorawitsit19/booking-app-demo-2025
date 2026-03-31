@@ -1,0 +1,8 @@
+﻿~ $ docker run -it --rm node:20-alpine sh
+/ # node --version
+v20.12.0
+/ # npm --version
+10.5.0
+/ # node -e "console.log('Hello from Docker! Running in:', process.env.HOSTNAME)"
+Hello from Docker! Running in: 9a7b6c5d4e3f
+/ # exit

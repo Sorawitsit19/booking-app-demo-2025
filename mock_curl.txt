@@ -1,0 +1,16 @@
+﻿~ $ curl -i http://localhost:5000
+HTTP/1.1 404 Not Found
+Content-Type: text/html; charset=utf-8
+Date: Tue, 31 Mar 2026 12:00:00 GMT
+Connection: keep-alive
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /</pre>
+</body>
+</html>

@@ -1,0 +1,2 @@
+﻿/ # ls /usr/share/nginx/html
+50x.html    index.html
